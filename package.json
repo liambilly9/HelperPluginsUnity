@@ -1,0 +1,21 @@
+{
+    "name": "com.lgu.helperplugins",
+    "version": "1.0.0",
+    "displayName": "UnityPlugins",
+    "description": "This package contains extensions from unity and csharp buitin classes, plus a singleton to extend to your monobehaviour",
+    "unity": "2022.3",
+    "license": "MIT",
+    "dependencies": {
+                                                                                                                                                                                                                                                                                                                                                                            
+   },
+    "author": {
+      "name": "yours_indie_gameDev",
+      "email": "liambilly9@gmail.com",
+      "url": "https://www.youtube.com/@yours_indie_game_dev"
+    },
+    
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/liambilly9/HelperPluginsUnity.git"
+    }
+  }
