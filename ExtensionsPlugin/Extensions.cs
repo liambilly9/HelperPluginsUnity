@@ -430,13 +430,13 @@ namespace yours_indie_gameDev.Plugin.Extensions
 
             return -1; // Return -1 if item is not found
         }
-        static public V ValidateKey<K, V>(this Dictionary<K, V> dict, K key)
+        static public V ValidateKey<K, V>(this Dictionary<K, V> dict, K key, V initializer = default)
         {
             if (dict.ContainsKey(key))
             {
                 return dict[key];
             }
-            return default;
+            return initializer;
         }
         public static bool TryGet<T>(this IList<T> list, Predicate<T> match, out T item)
         {
