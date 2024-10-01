@@ -594,6 +594,32 @@ namespace yours_indie_gameDev.Plugin.Extensions
             // Alternatively, you can leave this as is and return the array.
             return result.AsSpan(0, index).ToArray();
         }
+        public static T FindAsSpan<T>(this List<T> list, Predicate<T> predicate)
+        {
+            Span<T> span = list.ToArray(); // Get a Span<T> from the list
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (predicate(span[i]))
+                {
+                    return span[i];
+                }
+            }
+            return default;
+        }
+        public static T FindAsSpan<T>(this T[] array, Predicate<T> predicate)
+        {
+            Span<T> span = array; // Get a Span<T> from the list
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (predicate(span[i]))
+                {
+                    return span[i];
+                }
+            }
+            return default;
+        }
         public static Span<T> Sort<T>(this Span<T> span, Comparison<T> comparison)
         {// Convert Span to array for sorting
             var array = span.ToArray();
