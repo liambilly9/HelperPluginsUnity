@@ -13,6 +13,13 @@ namespace yours_indie_gameDev.Plugin.Extensions
     public static class Extensions
     {
         #region String
+        static public string Unclone(this string name)
+        {
+            ReadOnlySpan<char> namespan = name;
+            var indexclone = namespan.IndexOf('(');
+            var edited = namespan.Slice(0, indexclone);
+            return edited.ToString();
+        }
         public static String Random(this string source, int length, char min = 'a', char max = 'z')
         {//indexes ;special chars#.*, numbers, letters, special chars[]?
             if (min > max)
@@ -62,8 +69,26 @@ namespace yours_indie_gameDev.Plugin.Extensions
             }
             throw new SystemException("invalid float format");
         }
-        static public string Colorize(this string text, Color color) => $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(color)}>{text}</color>";
-        static public string Colorize<T>(this T text, Color color) where T : IConvertible => $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(color)}>{text}</color>";
+        public static int ToInt(this ReadOnlySpan<char> source)
+        {
+            int val;
+            if (int.TryParse(source, out val)) return val;
+            else
+            {
+                if (source == null) return 0;
+                StringBuilder sb = new();
+                foreach (char c in source)
+                {
+                    if (char.IsNumber(c)) sb.Append(c);
+                    else Debug.Log(c);
+                }
+                return int.Parse(sb.ToString());
+            }
+            throw new SystemException("invalid int format");
+        }
+        static public string Bold<T>(this T text) where T : IConvertible => $"<b>{text}</b>";
+        static public string Italic<T>(this T text) where T : IConvertible => $"<i>{text}</i>";
+        static public string Colorize<T>(this T text, Color color) where T : IConvertible => $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{text}</color>";
         #endregion
 
         #region Vectors
@@ -266,8 +291,9 @@ namespace yours_indie_gameDev.Plugin.Extensions
 
         #region Type
         static public bool IsCustomClass(this Type thisType)
-        {//this is MonoBehaviour
-            if (typeof(MonoBehaviour).IsAssignableFrom(thisType)) return false;//todo v3!typeof(ISaveable).IsAssignableFrom(thisType);                                                                                
+        {
+            if (typeof(Component).IsAssignableFrom(thisType)) return false;
+            //if (thisType.GetInterface("ISaveable")!=null) return false;//todov3;
             bool isbBuiltinClass = thisType.Namespace == nameof(System) || thisType.Namespace == nameof(UnityEngine)
             || thisType.Namespace == "Unity.Netcode" || thisType.IsCollectionType();//string,transform e.t.c
             bool customClass = thisType.IsClass && !isbBuiltinClass;//(!thisType.IsValueType && !isbBuiltinClass)
@@ -298,8 +324,26 @@ namespace yours_indie_gameDev.Plugin.Extensions
             return default;
         }
 
+        public static MemberInfo SetVal<T>(this T member, object instance, object value) where T : MemberInfo
+        {
+            if (member is FieldInfo field)
+                field.SetValue(instance, value);
+            else if (member is PropertyInfo property)
+                property.SetValue(instance, value);
+            return member;
+        }
+
+        private static object Value<T>(this T member, object instance, object value) where T : MemberInfo
+        {
+            if (member is FieldInfo field)
+                return field.GetValue(instance);
+            else if (member is PropertyInfo property)
+                return property.GetValue(instance);
+            return null;
+        }
         public static Type GetCollectionArgType(this Type collectionType)
         {
+            if (collectionType == null) return null;
             if (collectionType.IsArray)
             {
                 return collectionType.GetElementType();
@@ -317,7 +361,7 @@ namespace yours_indie_gameDev.Plugin.Extensions
         public static int GetDimensionCount(this Type type)
         {
             // Handle arrays
-            //if (type is not IEnumerable) throw new Exception("This aint no collection");
+            if (type == null) throw new Exception("null ref");
             if (type.IsArray)
             {
                 return type.GetArrayRank();
@@ -400,7 +444,7 @@ namespace yours_indie_gameDev.Plugin.Extensions
             }
 
             // Handle arrays
-            if (collectionType.IsArray)
+            else if (collectionType.IsArray)
             {
                 return (int)collectionType.GetProperty("Length").GetValue(collection);
             }
@@ -430,13 +474,13 @@ namespace yours_indie_gameDev.Plugin.Extensions
 
             return -1; // Return -1 if item is not found
         }
-        static public V ValidateKey<K, V>(this Dictionary<K, V> dict, K key, V initializer = default)
+        static public V ValidateKey<K, V>(this Dictionary<K, V> dict, K key)
         {
             if (dict.ContainsKey(key))
             {
                 return dict[key];
             }
-            return initializer;
+            return default;
         }
         public static bool TryGet<T>(this IList<T> list, Predicate<T> match, out T item)
         {
@@ -513,6 +557,55 @@ namespace yours_indie_gameDev.Plugin.Extensions
             Debug.Log("No non-null item found.");
             return default;
         }
+        public static T AddItem<T>(this List<T> list, T item)
+        {
+            list.Add(item);
+
+            return item;
+        }
+
+        public static List<T> Update<T>(this List<T> list)
+        {
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                if (list[i].Equals(null))
+                {
+                    list.RemoveAt(i);
+                }
+            }
+            return list;
+        }
+        public static T[] FindAll<T>(this Span<T> span, Func<T, bool> predicate)
+        {
+            // Create an array to store the results
+            T[] result = new T[span.Length];
+            int index = 0;
+
+            // Fill the result array with matching items
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (predicate(span[i]))
+                {
+                    result[index++] = span[i];
+                }
+            }
+
+            // If index < span.Length, ignore the empty slots
+            // Alternatively, you can leave this as is and return the array.
+            return result.AsSpan(0, index).ToArray();
+        }
+        public static Span<T> Sort<T>(this Span<T> span, Comparison<T> comparison)
+        {// Convert Span to array for sorting
+            var array = span.ToArray();
+
+            // Sort the array
+            Array.Sort(array, comparison);
+
+            // Copy sorted array back into the Span
+            array.CopyTo(span);
+            return span;
+        }
+
         #endregion
 
     }
