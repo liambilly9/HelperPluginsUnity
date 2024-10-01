@@ -267,7 +267,7 @@ namespace yours_indie_gameDev.Plugin.Extensions
         #region Type
         static public bool IsCustomClass(this Type thisType)
         {//this is MonoBehaviour
-            if (thisType.BaseType == typeof(MonoBehaviour)) return false;//todo v3!typeof(ISaveable).IsAssignableFrom(thisType);
+            if (typeof(MonoBehaviour).IsAssignableFrom(thisType)) return false;//todo v3!typeof(ISaveable).IsAssignableFrom(thisType);                                                                                
             bool isbBuiltinClass = thisType.Namespace == nameof(System) || thisType.Namespace == nameof(UnityEngine)
             || thisType.Namespace == "Unity.Netcode" || thisType.IsCollectionType();//string,transform e.t.c
             bool customClass = thisType.IsClass && !isbBuiltinClass;//(!thisType.IsValueType && !isbBuiltinClass)
