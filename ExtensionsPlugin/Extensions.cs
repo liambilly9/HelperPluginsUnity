@@ -12,6 +12,29 @@ namespace yours_indie_gameDev.Plugin.Extensions
 {
     public static class Extensions
     {
+        public static string AsCurrency(this int coins)
+        {
+            StringBuilder span = new(coins.ToString());
+            int length = coins.ToString().Length;
+            if (length > 3 && length <= 6)
+            {
+                double valueInThousands = coins / 1000.0;
+                return $"{valueInThousands.ToString("0.###")}k";
+            }
+            else if (length > 6 && length <= 9) // Millions range
+            {
+                // Divide by 1,000,000 and keep precision
+                double valueInMillions = coins / 1_000_000.0;
+                return $"{valueInMillions.ToString("0.######")}M";
+            }
+            else if (length > 9) // Billions range
+            {
+                // Divide by 1,000,000,000 and keep precision
+                double valueInBillions = coins / 1_000_000_000.0;
+                return $"{valueInBillions.ToString("0.#########")}B";
+            }
+            return coins.ToString();
+        }
         #region String
         static public string Unclone(this string name)
         {
