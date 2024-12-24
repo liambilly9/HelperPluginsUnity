@@ -12,6 +12,11 @@ namespace yours_indie_gameDev.Plugin.Extensions
 {
     public static class Extensions
     {
+        public static int Loop(this ref int index, int length, int step = 1)
+        {
+            index = (index + step + length) % length;
+            return index;
+        }
         public static string AsCurrency(this int coins)
         {
             StringBuilder span = new(coins.ToString());
