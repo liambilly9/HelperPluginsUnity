@@ -661,6 +661,15 @@ namespace yours_indie_gameDev.Plugin.Extensions
         }
 
         #endregion
+#if UNITY_EDITOR
+        #region objlog
+        public static void Log(this object message, Object ctx = null, LogType logType = LogType.Log)
+        {
+            Debug.unityLogger.Log(logType, message, ctx);
+        }
+        #endregion
+
+#endif
 
     }
 }
